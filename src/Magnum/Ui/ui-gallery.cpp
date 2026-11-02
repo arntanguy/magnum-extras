@@ -173,7 +173,21 @@ UiGallery::UiGallery(const Arguments& arguments): Platform::Application{argument
         .setTitle("Magnum::Ui Gallery"_s)
         .addWindowFlags(WindowFlag::Resizable));
 
+    const Vector2 dpiScaling = this->dpiScaling();
+
+    const Vector2i cacheSize = Vector2i{1024, 512} * dpiScaling.max();
+
     _ui.create(*this, Ui::DarkTheme{features});
+
+    auto& textLayer = _ui.setLayerInstance(Containers::pointer<Ui::TextLayerGL>(
+        _ui.createLayer(),
+        Ui::TextLayerGL::Shared{
+            Containers::pointer<Text::GlyphCacheGL>(PixelFormat::R8Unorm, cacheSize),
+            Ui::TextLayerSharedFlags{}
+        }
+    ));
+
+    Ui::DarkTheme{features}.apply(_ui);
 
     /* Set up the profiler, if enabled */
     if(args.isSet("profile")) {
